@@ -1,1 +1,42 @@
+name: Collect Streams - TEST MODE
 
+on:
+  workflow_dispatch:  # Sadece manuel çalıştır
+
+jobs:
+  collect-streams:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: pip install requests beautifulsoup4
+      
+    - name: Debug - List files
+      run: ls -la
+      
+    - name: Run Collector Script
+      run: |
+        echo "=== STARTING COLLECTOR ==="
+        python collector.py
+        echo "=== CHECKING OUTPUT ==="
+        ls -la *.m3u *.txt *.html 2>/dev/null || echo "No output files"
+        echo "=== M3U FILE CONTENT ==="
+        cat streams.m3u 2>/dev/null || echo "No streams.m3u file"
+        
+    - name: Save debug artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: debug-files
+        path: |
+          *.m3u
+          *.txt
+          *.html
+        retention-days: 1
