@@ -1,15 +1,14 @@
-name: Collect Streams - TEST MODE
+name: Collect Streams - DEBUG MODE
 
 on:
   workflow_dispatch:  # Sadece manuel çalıştır
 
 jobs:
-  collect-streams:
+  collect:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -17,26 +16,29 @@ jobs:
         python-version: '3.10'
         
     - name: Install dependencies
-      run: pip install requests beautifulsoup4
+      run: pip install requests
       
-    - name: Debug - List files
-      run: ls -la
-      
-    - name: Run Collector Script
+    - name: Run Debug Collector
       run: |
-        echo "=== STARTING COLLECTOR ==="
+        echo "=== STARTING ULTIMATE DEBUG COLLECTOR ==="
         python collector.py
-        echo "=== CHECKING OUTPUT ==="
-        ls -la *.m3u *.txt *.html 2>/dev/null || echo "No output files"
-        echo "=== M3U FILE CONTENT ==="
-        cat streams.m3u 2>/dev/null || echo "No streams.m3u file"
+        echo "=== ALL FILES ==="
+        ls -la
+        echo "=== FILE CONTENTS ==="
+        for file in *.m3u *.txt *.html; do
+          if [ -f "$file" ]; then
+            echo "--- $file (first 10 lines) ---"
+            head -10 "$file" 2>/dev/null || echo "Cannot read"
+            echo
+          fi
+        done
         
-    - name: Save debug artifacts
+    - name: Upload Debug Files
       uses: actions/upload-artifact@v4
       with:
-        name: debug-files
+        name: ultimate-debug
         path: |
           *.m3u
           *.txt
           *.html
-        retention-days: 1
+        retention-days: 7
