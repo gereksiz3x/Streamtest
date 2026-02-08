@@ -1,4 +1,9 @@
 #EXTM3U
-# Generated: 2026-02-07 19:31:14
-# WARNING: No streams found!
-# Check the extraction logic.
+# Toplam: 3 kanal
+
+#EXTINF:-1, Kanal 1
+http://xxip9.top:8080/get.php?username=test&password=test&type=m3u_plus
+#EXTINF:-1, Kanal 2
+https://clubbingtv-samsunguk.amagi.tv/playlist720_p.m3u8
+#EXTINF:-1, Kanal 3
+http://nn.7x9d.cn/%E6%B7%B1%E5%9C%B3%E6%9C%80%E6%96%B0.php?id=gdxw
