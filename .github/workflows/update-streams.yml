@@ -1,0 +1,73 @@
+name: Streamtest M3U Güncelleyici
+
+# Çalışma zamanları
+on:
+  # Her saat başı çalıştır (ister 30 dakikada bir yapabilirsiniz)
+  schedule:
+    - cron: '0 * * * *'     # Her saat başı
+    # - cron: '*/30 * * * *'  # 30 dakikada bir (alternatif)
+  
+  # Manuel çalıştırma butonu
+  workflow_dispatch:
+  
+  # Depoya push yapıldığında da çalışsın
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+jobs:
+  update-streams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Depoya yazma izni
+    
+    steps:
+      # 1. Depoyu klonla
+      - name: 📥 Depoyu klonla
+        uses: actions/checkout@v3
+      
+      # 2. Python kurulumu
+      - name: 🐍 Python kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      # 3. Gereksinimleri yükle
+      - name: 📦 Gereksinimleri yükle
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      
+      # 4. Betiği çalıştır
+      - name: 🚀 Betiği çalıştır
+        run: |
+          python scripts/streamtest_to_m3u.py
+        continue-on-error: true  # Hata olsa bile devam et
+      
+      # 5. Değişiklikleri kontrol et ve commit yap
+      - name: 💾 Değişiklikleri kaydet
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          
+          # Çıktı klasöründeki değişiklikleri ekle
+          git add outputs/
+          
+          # Değişiklik varsa commit yap
+          if git diff --staged --quiet; then
+            echo "✅ Değişiklik yok, commit gerekmiyor"
+          else
+            git commit -m "🔄 Otomatik güncelleme: $(date +'%Y-%m-%d %H:%M:%S')"
+            echo "✅ Değişiklikler commit edildi"
+          fi
+      
+      # 6. GitHub'a push yap
+      - name: 📤 GitHub'a gönder
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          force: false
