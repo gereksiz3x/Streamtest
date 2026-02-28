@@ -12,18 +12,24 @@ from datetime import datetime
 def main():
     print("🔄 streamtest.in/logs taranıyor...")
     
-    # Sayfayı çek
+def sayfayi_getir(url: str) -> Optional[str]:
+    """Belirtilen URL'deki sayfanın HTML içeriğini getirir."""
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'tr-TR,tr;q=0.9,en;q=0.8',
+            'Referer': 'https://www.google.com/',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
         }
-        response = requests.get('https://streamtest.in/logs', headers=headers, timeout=30)
+        response = requests.get(url, headers=headers, timeout=15)
         response.raise_for_status()
-        html = response.text
-        print(f"✅ Sayfa indirildi: {len(html)} byte")
+        return response.text
     except Exception as e:
         print(f"❌ Sayfa indirilemedi: {e}")
-        return False
+        return None
     
     # Linkleri bul (basit regex)
     linkler = []
